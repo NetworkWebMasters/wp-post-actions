@@ -16,16 +16,14 @@ class WP_Post_Actions_Fav_Singleton {
         if(! $query->is_main_query() ) return;
         
         if($_REQUEST['fav_s'] != '1') return;
-        
-        $user_id = get_current_user_id();
-        
+                
         //Get original meta query
 		$meta_query = $query->get('meta_query');
         
 		//Add our meta query to the original meta queries
 		$meta_query[] = array(
 		                    'key'=>'favorite',
-		                    'value'=> $user_id,
+		                    'value'=> 1,
 		                );
         
 		$query->set('meta_query', $meta_query);
@@ -58,14 +56,14 @@ class WP_Post_Actions_Fav_Singleton {
         if(isset($_REQUEST['site_action'])) $site_action = $_REQUEST['site_action'];
         if(isset($_REQUEST['post_id'])) $post_id = $_REQUEST['post_id'];
         
-        $user_id = get_current_user_id();
-        
-        if($site_action == 'fav' and $post_id) {
-            $fav_list = get_post_meta($post_id, 'favorite');
-            if(in_array($user_id, $fav_list)) {
-                delete_post_meta($post_id, 'favorite', $user_id);
+        if($site_action == 'fav_s' and $post_id) {
+            
+            $fav = get_post_meta($post_id, 'favorite', true);
+                        
+            if("1" == $fav) {
+                delete_post_meta($post_id, 'favorite');
             } else {
-                add_post_meta($post_id, 'favorite', $user_id);
+                update_post_meta($post_id, 'favorite', "1");
             }
             global $wp;
             $url_wp_redirect = add_query_arg( array('site_action' => null, 'post_id' => null), home_url($wp->request) );
@@ -80,11 +78,10 @@ class WP_Post_Actions_Fav_Singleton {
         global $wp;
         $post = get_post();
 
-        $url_action = add_query_arg( array('site_action' => 'fav', 'post_id' => $post->ID), home_url($wp->request)  );
-        $favorite_list = get_post_meta($post->ID, 'favorite');
-        $user_id = get_current_user_id();
+        $url_action = add_query_arg( array('site_action' => 'fav_s', 'post_id' => $post->ID), home_url($wp->request));
+        $favorite = get_post_meta($post->ID, 'favorite', true);
         
-        if(in_array( $user_id, $favorite_list )){
+        if($favorite == 1){
             $btn_text = '<span class="glyphicon glyphicon-star"></span> Убрать из избранного';
         } else {
             $btn_text = '<span class="glyphicon glyphicon-star-empty"></span> Добавить в избранное';
