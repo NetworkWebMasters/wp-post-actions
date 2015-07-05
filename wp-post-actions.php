@@ -10,6 +10,7 @@ License: MIT
 */
 
 include 'inc/delete.php';
+include 'inc/fav.php';
 
 //загружаем шаблон из папки, если обнаружен параметр view=cover
 function add_actions_s($content) {
